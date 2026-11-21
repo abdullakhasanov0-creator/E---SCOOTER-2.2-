@@ -25,6 +25,11 @@ jobs:
           f=$(find . -name Ui.kt | head -n1)
           grep -q 'runtime.saveable.rememberSaveable' "$f" || sed -i 's/^import androidx.compose.runtime.\*$/import androidx.compose.runtime.*\nimport androidx.compose.runtime.saveable.rememberSaveable/' "$f"
 
+      - name: Fix JVM signature clashes
+        run: |
+          f=$(find . -name Vm.kt | head -n1)
+          grep -q 'JvmName("applyTheme")' "$f" || sed -i -E 's/^(\s*)fun set(Theme|AllowWrite|SpeedDiv|MileDiv|MaxKmh|StrobeMs|StrobePattern|StrobeTarget)\(/\1@JvmName("apply\2") fun set\2(/' "$f"
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
