@@ -10,10 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Find project dir
+      - name: Unpack zip and find project
         id: proj
         run: |
-          f=$(find . -name settings.gradle.kts -not -path '*/node_modules/*' | head -n1)
+          for z in *.zip; do
+            [ -f "$z" ] && unzip -q -o "$z" -d _src
+          done
+          f=$(find . -name settings.gradle.kts | head -n1)
           if [ -z "$f" ]; then echo "settings.gradle.kts not found"; ls -R | head -50; exit 1; fi
           echo "dir=$(dirname "$f")" >> "$GITHUB_OUTPUT"
 
