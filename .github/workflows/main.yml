@@ -10,6 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Find project dir
+        id: proj
+        run: |
+          f=$(find . -name settings.gradle.kts -not -path '*/node_modules/*' | head -n1)
+          if [ -z "$f" ]; then echo "settings.gradle.kts not found"; ls -R | head -50; exit 1; fi
+          echo "dir=$(dirname "$f")" >> "$GITHUB_OUTPUT"
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -23,9 +30,10 @@ jobs:
           gradle-version: '8.7'
 
       - name: Build debug APK
+        working-directory: ${{ steps.proj.outputs.dir }}
         run: gradle assembleDebug --no-daemon --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
           name: E-scooter-App-debug
-          path: app/build/outputs/apk/debug/*.apk
+          path: ${{ steps.proj.outputs.dir }}/app/build/outputs/apk/debug/*.apk
