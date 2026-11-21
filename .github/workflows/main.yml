@@ -20,6 +20,11 @@ jobs:
           if [ -z "$f" ]; then echo "settings.gradle.kts not found"; ls -R | head -50; exit 1; fi
           echo "dir=$(dirname "$f")" >> "$GITHUB_OUTPUT"
 
+      - name: Fix missing import
+        run: |
+          f=$(find . -name Ui.kt | head -n1)
+          grep -q 'runtime.saveable.rememberSaveable' "$f" || sed -i 's/^import androidx.compose.runtime.\*$/import androidx.compose.runtime.*\nimport androidx.compose.runtime.saveable.rememberSaveable/' "$f"
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
